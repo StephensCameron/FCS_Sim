@@ -1,0 +1,7 @@
+- strategy:
+    - create a stucture that contains the x,y,z coords of a particle
+    - create a function that a randomized delta x, y, x based on diffusion coefficient:
+        - delta x = sqrt(2D delta_t) * eda(0,1)
+        - for now just a random that follows whatever distribution makes sense
+        -gaussian 
+        - 1d gaussian, 3d maxwell boltzman
