@@ -3,5 +3,7 @@
     - create a function that a randomized delta x, y, x based on diffusion coefficient:
         - delta x = sqrt(2D delta_t) * eda(0,1)
         - for now just a random that follows whatever distribution makes sense
-        -gaussian 
+            - gaussian 
         - 1d gaussian, 3d maxwell boltzman
+
+    - for the sim graphics: look into using OpenGL / MathGL or GNUPlot
