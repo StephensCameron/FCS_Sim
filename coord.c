@@ -33,8 +33,7 @@ double walk_axis(double D, double delta_t) {
     return sqrt(D * delta_t * 2) * scale; 
 }
 
-void timestep_coord(double delta_t, coord_t* coord) {
-    double D = 1.0;
+void timestep_coord(double D, double delta_t, coord_t* coord) {
     coord->x = coord->x + walk_axis(D, delta_t);
     coord->y = coord->y + walk_axis(D, delta_t);
     coord->z = coord->z + walk_axis(D, delta_t);
@@ -43,22 +42,33 @@ void timestep_coord(double delta_t, coord_t* coord) {
 void check_coord_boundary(coord_t* coord, double boundary) {
     // apply a boundary check for a cube of size 2*boundary centered at the origin
     // This allows us to have a cube with corners at (-boundary, -boundary, -boundary) and (boundary, boundary, boundary)
+    // implement a period ic boundary condition, where if a coordinate goes beyond the boundary, it wraps around to the other side
     if (coord->x < -boundary) {
-        coord->x = -2 * boundary;
+        coord->x = 2 * boundary + coord->x; // wrap around to the other side
     } else if (coord->x > boundary) {
-        coord->x = 2 * boundary;
+        coord->x = -2 * boundary + coord->x; // wrap around to the other side
     }
 
     if (coord->y < -boundary) {
-        coord->y = -2 * boundary;
+        coord->y = 2 * boundary + coord->y; // wrap around to the other side
     } else if (coord->y > boundary) {
-        coord->y = 2 * boundary;
+        coord->y = -2 * boundary + coord->y; // wrap around to the other side
     }
 
     if (coord->z < -boundary) {
-        coord->z = -2 * boundary;
+        coord->z = 2 * boundary + coord->z; // wrap around to the other side
     } else if (coord->z > boundary) {
-        coord->z = 2 * boundary;
+        coord->z = -2 * boundary + coord->z; // wrap around to the other side
     }
 }
 
+double get_intensity_at_coord(coord_t* coord, confocal_volume_t* volume) {
+    // Calculate the intensity at a given coordinate based on the confocal volume parameters
+    double r_squared = coord->x * coord->x + coord->y * coord->y;
+    double z_squared = coord->z * coord->z;
+
+    // Gaussian beam profile
+    double intensity = exp(-2.0 * r_squared / (volume->w0 * volume->w0)) * exp(-2.0 * z_squared / (volume->z0 * volume->z0));
+    
+    return intensity;
+}
