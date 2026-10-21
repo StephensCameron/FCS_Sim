@@ -257,6 +257,44 @@ def calculate_D_from_tau_D(tau_D, w0, z0):
     D = w0**2 / (4 * tau_D)  # assuming 3D Gaussian beam profile
     return D
 
+FIT_TABLE_START = "<!-- fit-table:start -->"
+FIT_TABLE_END = "<!-- fit-table:end -->"
+
+def format_fit_table_markdown(single_fit_rows):
+    '''
+    Formats the single-species fit results (N_set, D_true, D_fit, N_exp, N_fit) as a markdown table.
+    '''
+    lines = [
+        "| Particles in box | D true (µm²/s) | D fit (µm²/s) | D error (%) | ⟨N⟩ in volume, expected | ⟨N⟩ in volume, fit |",
+        "|---:|---:|---:|---:|---:|---:|",
+    ]
+    for N_set, D_true, D_fit, N_exp, N_fit in single_fit_rows:
+        D_error = (D_fit - D_true) / D_true * 100
+        lines.append(f"| {N_set:g} | {D_true:g} | {D_fit:.2f} | {D_error:+.1f} | {N_exp:.4f} | {N_fit:.4f} |")
+    return "\n".join(lines) + "\n"
+
+def write_fit_table_markdown(single_fit_rows, md_path, readme_path=None):
+    '''
+    Saves the fit table as markdown to md_path. If readme_path is given, also replaces the text
+    between the fit-table marker comments in the readme so it always shows the latest results.
+    '''
+    table = format_fit_table_markdown(single_fit_rows)
+    with open(md_path, "w", encoding="utf-8") as f:
+        f.write(table)
+
+    if readme_path is None or not os.path.exists(readme_path):
+        return
+    with open(readme_path, "r", encoding="utf-8") as f:
+        readme = f.read()
+    start = readme.find(FIT_TABLE_START)
+    end = readme.find(FIT_TABLE_END)
+    if start == -1 or end == -1 or end < start:
+        print(f"fit-table markers not found in {readme_path}; readme not updated")
+        return
+    readme = readme[:start + len(FIT_TABLE_START)] + "\n" + table + readme[end:]
+    with open(readme_path, "w", encoding="utf-8") as f:
+        f.write(readme)
+
 
 
 
@@ -686,6 +724,8 @@ def run_validation():
         f.write("N_set,D_true,D_fit,N_exp,N_fit\n")
         for row in single_fit_rows:
             f.write(f"{row[0]},{row[1]},{row[2]:.4f},{row[3]:.6f},{row[4]:.6f}\n")
+    write_fit_table_markdown(single_fit_rows, figures_folder + "\\single_species_fit_table.md",
+                             readme_path=os.path.join(os.getcwd(), "readme.md"))
 
     labels = [f"N={r[0]}\nD={r[1]}" for r in single_fit_rows]
     x = np.arange(len(single_fit_rows))
