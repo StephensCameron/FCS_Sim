@@ -1,0 +1,9 @@
+# Whitelist: ignore everything, then re-include only what should be published
+/*
+!/.gitignore
+!/readme.md
+!/build_DLLs.txt
+!/src/
+!/src_cuda_enabled/
+!/validation.py
+!/validation_figures/

@@ -1,0 +1,13 @@
+gcc -shared -o DLLs/confocal_volume.dll src/confocal_volume.h
+gcc -shared -o DLLs/coord.dll src/coord.h
+gcc -shared -o DLLs/diffusion_sim.dll src/diffusion_sim.h
+gcc -shared -o DLLs/time_trace.dll src/time_trace.h
+
+gcc -shared -o DLLs/generate_timetrace.dll src/generate_timetrace.c
+
+for shared:
+gcc -shared -o DLLs/generate_timetrace.dll src/generate_timetrace.c src/diffusion_sim.c src/time_trace.c src/coord.c -I src -lm
+
+
+for compiling readme:
+(ctypes_env) PS C:\Documents\CodingProjects\Diffusion_FCS_Sim> pandoc readme.md -o readme.pdf --pdf-engine tectonic
